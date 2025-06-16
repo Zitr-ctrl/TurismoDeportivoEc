@@ -6,6 +6,7 @@ import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -42,6 +43,8 @@ const Login = () => {
         className="bg-white p-8 rounded shadow-md w-full max-w-md"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">Iniciar sesión</h2>
+
+        <label htmlFor="email">Correo:</label>
         <input
           type="email"
           name="email"
@@ -50,14 +53,25 @@ const Login = () => {
           required
           className="w-full mb-4 px-4 py-2 border rounded"
         />
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          onChange={handleChange}
-          required
-          className="w-full mb-6 px-4 py-2 border rounded"
-        />
+
+        <label htmlFor="password">Contraseña:</label>
+        <div className="relative mb-6">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Contraseña"
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border rounded pr-10"
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-sm text-gray-500"
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </span>
+        </div>
+
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
@@ -67,7 +81,10 @@ const Login = () => {
 
         <div className="mt-6 text-center">
           <p className="mb-2 text-sm text-gray-600">o inicia con Google</p>
-          <GoogleLogin onSuccess={handleGoogleLogin} onError={() => alert("Error con Google")} />
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => alert("Error con Google")}
+          />
         </div>
       </form>
     </div>

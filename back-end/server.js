@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const eventoRoutes = require('./routes/eventoRoutes');
-const authRoutes = require('./middlewares/auth.js');
+const authRoutes = require('./routes/auth.js');
 
 dotenv.config();
 connectDB();
@@ -19,6 +19,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.static('public'));
+
 app.use('/api/auth', authRoutes);
 
 // Rutas
