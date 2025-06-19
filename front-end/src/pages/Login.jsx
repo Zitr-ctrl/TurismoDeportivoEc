@@ -16,7 +16,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, form);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, form);
       login(res.data.token);
       navigate("/");
     } catch (err) {
@@ -26,7 +26,7 @@ const Login = () => {
 
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/google`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
         token: credentialResponse.credential,
       });
       login(res.data.token);

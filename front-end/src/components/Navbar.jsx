@@ -18,6 +18,7 @@ const Navbar = () => {
       </Link>
 
       <div className="flex items-center space-x-4">
+        {/* Mostrar enlaces de login y registro si no hay usuario */}
         {!user && (
           <>
             <Link to="/login" className="hover:underline">Iniciar sesión</Link>
@@ -25,12 +26,14 @@ const Navbar = () => {
           </>
         )}
 
+        {/* Si el usuario está logueado */}
         {user && (
           <>
             <span className="text-sm">
               👋 Hola, <strong>{user.name}</strong> ({user.role})
             </span>
 
+            {/* Enlace para 'Crear Usuario' solo visible para admin */}
             {user.role === "admin" && (
               <Link
                 to="/crear-usuario"
@@ -40,6 +43,25 @@ const Navbar = () => {
               </Link>
             )}
 
+            {/* Enlace para 'Publicar Evento' visible para admin y publicador */}
+            {["admin", "publicador"].includes(user.role) && (
+              <Link
+                to="/publicar-evento"
+                className="bg-white text-blue-700 px-3 py-1 rounded hover:bg-gray-100"
+              >
+                Publicar Evento
+              </Link>
+            )}
+
+            {/* Enlace para ver todos los eventos */}
+            <Link
+              to="/eventos"
+              className="bg-white text-blue-700 px-3 py-1 rounded hover:bg-gray-100"
+            >
+              Ver Eventos
+            </Link>
+
+            {/* Botón de cerrar sesión */}
             <button
               onClick={handleLogout}
               className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"

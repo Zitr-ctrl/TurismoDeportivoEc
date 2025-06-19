@@ -1,15 +1,11 @@
 const mongoose = require('mongoose');
 
-const EventoSchema = new mongoose.Schema({
-  nombre: String,
-  fecha: Date,
-  lugar: String,
-  descripcion: String,
-  tipo: String, // ciclismo, triatlón, senderismo
-  creadoEn: {
-    type: Date,
-    default: Date.now
-  }
-});
+const eventoSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  date: Date,
+  location: String,
+  image: String, // Ruta a la imagen guardada
+}, { timestamps: true });
 
-module.exports = mongoose.model('Evento', EventoSchema);
+module.exports = mongoose.model('Evento', eventoSchema);

@@ -2,9 +2,12 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import CrearUsuario from "./pages/CrearUsuario"; // ✅ nuevo
+import CrearUsuario from "./pages/CrearUsuario"; // ✅ nueva ruta para crear usuario
 import Navbar from "./components/Navbar";
 import PrivateRoute from "./routes/PrivateRoute";
+import PublicarEvento from "./pages/PublicarEvento"; // ✅ nueva ruta para publicar eventos
+import Eventos from "./pages/Eventos"; // ✅ ruta para ver eventos deportivos
+import DetallesEvento from "./pages/DetallesEvento"; // ✅ nueva ruta para ver los detalles de un evento
 
 const App = () => {
   return (
@@ -28,7 +31,32 @@ const App = () => {
           path="/crear-usuario"
           element={
             <PrivateRoute>
-              <CrearUsuario />
+              <CrearUsuario /> {/* Solo mostrar CrearUsuario */}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/publicar-evento"
+          element={
+            <PrivateRoute>
+              <PublicarEvento /> {/* Solo mostrar PublicarEvento */}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/eventos"
+          element={
+            <PrivateRoute>
+              <Eventos /> {/* Ruta para mostrar todos los eventos */}
+            </PrivateRoute>
+          }
+        />
+        {/* Ruta para ver los detalles del evento */}
+        <Route
+          path="/evento/:id"
+          element={
+            <PrivateRoute>
+              <DetallesEvento /> {/* Ver detalles del evento */}
             </PrivateRoute>
           }
         />
