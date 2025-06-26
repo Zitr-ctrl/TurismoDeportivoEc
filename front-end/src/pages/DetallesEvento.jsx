@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const DetallesEvento = () => {
   const { id } = useParams(); // Obtener el ID del evento desde la URL
   const [evento, setEvento] = useState(null);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext); // Obtener el usuario actual desde el contexto
 
   useEffect(() => {
     const fetchEvento = async () => {
@@ -19,8 +23,24 @@ const DetallesEvento = () => {
     fetchEvento();
   }, [id]);
 
-  if (error) return <div>{error}</div>;
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/eventos/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      navigate("/eventos"); // Redirige a la lista de eventos después de eliminar
+    } catch (err) {
+      setError("❌ Error al eliminar el evento");
+    }
+  };
 
+  const handleEdit = () => {
+    navigate(`/editar-evento/${id}`); // Redirige a la página de edición
+  };
+
+  if (error) return <div>{error}</div>;
   if (!evento) return <div>Cargando...</div>;
 
   return (
@@ -39,6 +59,28 @@ const DetallesEvento = () => {
           style={{ width: "100%", height: "auto" }}
         />
       )}
+
+      <div className="mt-4 flex justify-between">
+        {/* Mostrar el botón de editar solo si el usuario tiene el rol adecuado */}
+        {["admin", "publicador"].includes(user?.role) && (
+          <button
+            onClick={handleEdit}
+            className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+          >
+            Editar Evento
+          </button>
+        )}
+
+        {/* Mostrar el botón de eliminar solo si el usuario tiene el rol adecuado */}
+        {["admin", "publicador"].includes(user?.role) && (
+          <button
+            onClick={handleDelete}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Eliminar Evento
+          </button>
+        )}
+      </div>
     </div>
   );
 };

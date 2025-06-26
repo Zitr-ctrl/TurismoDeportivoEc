@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext"; // Importar el contexto para obtener el usuario
 
 const Eventos = () => {
   const [eventos, setEventos] = useState([]);
@@ -8,7 +9,11 @@ const Eventos = () => {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [eventsPerPage] = useState(5); // Número de eventos por página
+  const [filterDate, setFilterDate] = useState(""); // Filtro por fecha
+  const [filterLocation, setFilterLocation] = useState(""); // Filtro por ubicación
+  const [searchTerm, setSearchTerm] = useState(""); // Término de búsqueda para el título
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext); // Obtener el usuario actual desde el contexto
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("es-ES"); // Formato español
@@ -30,16 +35,34 @@ const Eventos = () => {
     fetchEventos();
   }, []);
 
-  // Filtrar los eventos por búsqueda
-  const handleSearch = (e) => {
-    const searchValue = e.target.value.toLowerCase();
-    const filteredData = eventos.filter(
-      (evento) =>
-        evento.title.toLowerCase().includes(searchValue) ||
-        evento.description.toLowerCase().includes(searchValue)
-    );
+  // Filtrar los eventos por búsqueda (todos los parámetros)
+  const handleSearch = () => {
+    const filteredData = eventos.filter((evento) => {
+      const matchTitle = evento.title.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Filtro por fecha: buscamos eventos **anteriores o iguales** a la fecha seleccionada
+      const matchDate = filterDate ? new Date(evento.date) <= new Date(filterDate) : true;
+
+      // Filtro por ubicación
+      const matchLocation = filterLocation ? evento.location.toLowerCase().includes(filterLocation.toLowerCase()) : true;
+
+      return matchTitle && matchDate && matchLocation;
+    });
     setFilteredEventos(filteredData);
     setCurrentPage(1); // Resetear a la primera página cuando se haga una búsqueda
+  };
+
+  // Filtrar eventos por fecha y ubicación
+  const handleFilterChange = () => {
+    const filteredData = eventos.filter((evento) => {
+      const matchDate = filterDate ? new Date(evento.date) <= new Date(filterDate) : true;
+      const matchLocation = filterLocation ? evento.location.toLowerCase().includes(filterLocation.toLowerCase()) : true;
+
+      return matchDate && matchLocation;
+    });
+
+    setFilteredEventos(filteredData);
+    setCurrentPage(1); // Resetear a la primera página cuando se haga un filtro
   };
 
   // Paginación: calcular los eventos actuales a mostrar
@@ -49,6 +72,15 @@ const Eventos = () => {
 
   // Cambiar de página
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Limpiar los filtros de búsqueda
+  const clearFilters = () => {
+    setFilterDate("");
+    setFilterLocation("");
+    setSearchTerm(""); // Limpiar el filtro de título
+    setFilteredEventos(eventos); // Restablece la lista completa de eventos
+    setCurrentPage(1);
+  };
 
   return (
     <div className="p-8">
@@ -60,20 +92,58 @@ const Eventos = () => {
         </div>
       )}
 
-      {/* Barra de búsqueda */}
-      <input
-        type="text"
-        placeholder="Buscar eventos..."
-        className="p-2 border rounded mb-4"
-        onChange={handleSearch}
-      />
+      {/* Barra de búsqueda y filtros en una sola fila */}
+      <div className="mb-4 flex justify-between space-x-4">
+        {/* Filtro por título */}
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="p-2 border rounded w-1/4"
+          placeholder="Buscar por título..."
+        />
+
+        {/* Filtro por fecha */}
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          className="p-2 border rounded w-1/4"
+        />
+
+        {/* Filtro por ubicación */}
+        <input
+          type="text"
+          value={filterLocation}
+          onChange={(e) => setFilterLocation(e.target.value)}
+          className="p-2 border rounded w-1/4"
+          placeholder="Filtrar por ubicación"
+        />
+
+        {/* Botón de filtro */}
+        <button
+          onClick={handleSearch}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Buscar
+        </button>
+      </div>
+
+      {/* Botón de limpiar filtros */}
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={clearFilters}
+          className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+        >
+          Limpiar Filtros
+        </button>
+      </div>
 
       {/* Tabla de eventos */}
       <table className="min-w-full table-auto">
         <thead>
           <tr>
             <th className="px-4 py-2">Título</th>
-            <th className="px-4 py-2">Descripción</th>
             <th className="px-4 py-2">Ubicación</th>
             <th className="px-4 py-2">Fecha</th>
             <th className="px-4 py-2">Acciones</th>
@@ -82,7 +152,7 @@ const Eventos = () => {
         <tbody>
           {currentEvents.length === 0 ? (
             <tr>
-              <td colSpan="5" className="text-center p-4">
+              <td colSpan="4" className="text-center p-4">
                 No hay eventos disponibles.
               </td>
             </tr>
@@ -90,7 +160,6 @@ const Eventos = () => {
             currentEvents.map((evento) => (
               <tr key={evento._id}>
                 <td className="border px-4 py-2">{evento.title}</td>
-                <td className="border px-4 py-2">{evento.description}</td>
                 <td className="border px-4 py-2">{evento.location}</td>
                 <td className="border px-4 py-2">{formatDate(evento.date)}</td>
                 <td className="border px-4 py-2">

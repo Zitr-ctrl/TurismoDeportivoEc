@@ -8,6 +8,7 @@ import PrivateRoute from "./routes/PrivateRoute";
 import PublicarEvento from "./pages/PublicarEvento"; // ✅ nueva ruta para publicar eventos
 import Eventos from "./pages/Eventos"; // ✅ ruta para ver eventos deportivos
 import DetallesEvento from "./pages/DetallesEvento"; // ✅ nueva ruta para ver los detalles de un evento
+import EditarEvento from "./pages/EditarEvento"; // ✅ nueva ruta para editar eventos
 
 const App = () => {
   return (
@@ -57,6 +58,15 @@ const App = () => {
           element={
             <PrivateRoute>
               <DetallesEvento /> {/* Ver detalles del evento */}
+            </PrivateRoute>
+          }
+        />
+        {/* Ruta para editar un evento */}
+        <Route
+          path="/editar-evento/:id"
+          element={
+            <PrivateRoute>
+              <EditarEvento /> {/* Página de edición de evento */}
             </PrivateRoute>
           }
         />

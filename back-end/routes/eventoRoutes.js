@@ -70,4 +70,54 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Modificar un evento existente (editar)
+router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
+  const { title, description, date, location } = req.body;
+  const image = req.file ? req.file.path.replace(/\\/g, '/') : null; // Guardar la ruta de la nueva imagen si se sube
+
+  try {
+    const evento = await Evento.findById(req.params.id);
+    if (!evento) {
+      return res.status(404).json({ message: 'Evento no encontrado' });
+    }
+
+    // Asegurarse de que el usuario tiene el rol correcto para editar
+    if (req.user.role !== "admin" && req.user.role !== "publicador") {
+      return res.status(403).json({ message: 'Acceso denegado' });
+    }
+
+    // Actualizar el evento
+    evento.title = title || evento.title;
+    evento.description = description || evento.description;
+    evento.date = date || evento.date;
+    evento.location = location || evento.location;
+    if (image) evento.image = image; // Solo si hay una nueva imagen, actualizarla
+
+    await evento.save();
+
+    res.status(200).json({ message: 'Evento actualizado con éxito', evento });
+  } catch (err) {
+    res.status(500).json({ message: 'Error al actualizar el evento' });
+  }
+});
+
+// Eliminar un evento
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const evento = await Evento.findByIdAndDelete(req.params.id);
+    if (!evento) {
+      return res.status(404).json({ message: 'Evento no encontrado' });
+    }
+
+    // Asegurarse de que el usuario tiene el rol correcto para eliminar
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: 'Acceso denegado' });
+    }
+
+    res.status(200).json({ message: 'Evento eliminado con éxito' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error al eliminar el evento' });
+  }
+});
+
 module.exports = router;
