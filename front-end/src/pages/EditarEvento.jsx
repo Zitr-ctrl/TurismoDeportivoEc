@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { LoadScript, GoogleMap, Marker } from "@react-google-maps/api";
 
 const EditarEvento = () => {
   const { id } = useParams();
@@ -10,6 +11,8 @@ const EditarEvento = () => {
     description: "",
     date: "",
     location: "",
+    lat: null, // Latitud
+    lng: null, // Longitud
     image: "",
   });
   const [error, setError] = useState("");
@@ -46,6 +49,12 @@ const EditarEvento = () => {
     } catch (err) {
       setError("❌ Error al actualizar el evento");
     }
+  };
+
+  const handleMapClick = (e) => {
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+    setEvento({ ...evento, lat, lng });
   };
 
   if (error) return <div>{error}</div>;
@@ -94,6 +103,25 @@ const EditarEvento = () => {
           onChange={handleChange}
           className="w-full mb-4 px-4 py-2 border rounded"
         />
+
+        {/* Mapa interactivo */}
+        <div className="mb-4">
+          <LoadScript googleMapsApiKey="AIzaSyDsrWTJEfxG_Njk_GQjSaKPUGSRTwr6sK8">
+            <GoogleMap
+              mapContainerStyle={{
+                height: "400px",
+                width: "100%",
+              }}
+              center={{ lat: evento.lat || -1.8312, lng: evento.lng || -78.1835 }} // Mapa centrado en Ecuador por defecto
+              zoom={12}
+              onClick={handleMapClick}
+            >
+              {evento.lat && evento.lng && (
+                <Marker position={{ lat: evento.lat, lng: evento.lng }} />
+              )}
+            </GoogleMap>
+          </LoadScript>
+        </div>
 
         <button
           type="submit"
